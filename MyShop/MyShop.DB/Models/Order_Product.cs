@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MyShop.DB.Models
 {
-    class Order_Product
+    public class Order_Product
     {
         public int Id { get; set; }
         public Product Product { get; set; }

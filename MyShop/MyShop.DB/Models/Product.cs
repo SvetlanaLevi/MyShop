@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MyShop.DB.Models
 {
-    class Product
+    public class Product
     {
         public int Id { get; set; }
         public decimal Price { get; set; }

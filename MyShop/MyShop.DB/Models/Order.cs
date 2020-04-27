@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MyShop.DB.Models
 {
-    class Order
+    public class Order
     {
         public int Id { get; set; }
         public Representative Rep { get; set; }

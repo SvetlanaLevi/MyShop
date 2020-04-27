@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MyShop.DB.Models
 {
-    class Valute
+    public class Valute
     {
         public string CharCode { get; set; }
         public int Nominal { get; set; }
