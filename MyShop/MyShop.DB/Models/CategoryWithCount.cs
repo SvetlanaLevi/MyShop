@@ -4,9 +4,9 @@ using System.Text;
 
 namespace MyShop.DB.Models
 {
-    public class Representative
+    public class CategoryWithCount
     {
-        public int? Id { get; set; }
         public string Name { get; set; }
+        public int Count { get; set; }
     }
 }
