@@ -7,9 +7,11 @@ namespace MyShop.DB.Storages
 {
     public interface IOrderStorage
     {
-        ValueTask<Order> AddOrder(Order order);
-        ValueTask<Order> GetOrderById(int orderId);
-        ValueTask<List<Order>> GetOrderByCustomerId(int customerId);
+        ValueTask<Order> OrderInsert(Order order);
+        ValueTask<Order> OrderGetById(int orderId);
+        ValueTask<Order_Product> OrderProductInsert(Order_Product order_Product);
+        ValueTask<List<Order>> OrderGetByCustomerId(int customerId);
+        ValueTask<List<Order_Product>> OrderProductsGetByOrderId(int customerId);
         void TransactionCommit();
         void TransactionStart();
         void TransactioRollBack();
