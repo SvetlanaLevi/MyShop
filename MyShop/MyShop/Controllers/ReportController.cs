@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using MyShop.Repository;
 
 namespace MyShop.API.Controllers
 {
@@ -11,9 +13,19 @@ namespace MyShop.API.Controllers
     [ApiController]
     public class ReportController : ControllerBase, IReportController
     {
+
+        //private readonly ReportRepository _repository;
+        //private readonly ReportStorage _storage;
+
+        public ReportController(IConfiguration configuration)
+        {
+            string dbCon = configuration.GetConnectionString("DefaultConnection");
+            //_storage = new ReportStorage(dbCon);
+            //_repository = new OrderRepository(_storage);
+        }
         //вывести категории, в которых заведено n и более товаров
         [HttpGet("CategoriesWithMoreProductThan/{count}")]
-        public ValueTask<ActionResult<CategoriesWithCountProductOutputModel>> GetCategoriesWithMoreThanCountProduct(int count)
+        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithMoreThanCountProduct(int count)
         {
             throw new NotImplementedException();
         }
