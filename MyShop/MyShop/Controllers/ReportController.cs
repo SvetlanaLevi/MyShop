@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using MyShop.API.ModelsInput;
+using MyShop.API.ModelsOutput;
 using MyShop.Repository;
 
 namespace MyShop.API.Controllers
@@ -25,7 +27,7 @@ namespace MyShop.API.Controllers
         }
         //вывести категории, в которых заведено n и более товаров
         [HttpGet("CategoriesWithMoreProductThan/{count}")]
-        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithMoreThanCountProduct(int count)
+        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithCountProductMoreThan(int count)
         {
             throw new NotImplementedException();
         }

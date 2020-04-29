@@ -7,14 +7,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MyShop.API.ModelsInput;
+using MyShop.API.ModelsOutput;
 using MyShop.DB.Storages;
 using MyShop.Repository;
+using Newtonsoft.Json.Linq;
 
 namespace MyShop.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase, IOrderController
+    public class OrderController : ControllerBase//, IOrderController
     {
         private readonly OrderRepository _repository;
         private readonly OrderStorage _storage;
@@ -29,9 +31,6 @@ namespace MyShop.API.Controllers
         [HttpPost]
         public async ValueTask<ActionResult<OrderOutputModel>> CreateOrder(OrderInputModel model)
         {
-            string URI = "https://www.cbr-xml-daily.ru/daily_json.js";
-            var result = SendRequest.SendingRequest(URI);
-            //return JsonSerializer.Deserialize<List<TransactionEntityOutputModel>>(result, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             throw new NotImplementedException();
         }
 
@@ -47,13 +46,14 @@ namespace MyShop.API.Controllers
             throw new NotImplementedException();
         }
 
-        [HttpGet("test")]
-        public Valute Valute()
+        [HttpGet("test/{id}")]
+        public void Valute(string id)
         {
             string URI = "https://www.cbr-xml-daily.ru/daily_json.js";
             var result = SendRequest.SendingRequest(URI);
-            var data = JsonSerializer.Deserialize<Valute>(result, new JsonSerializerOptions { PropertyNameCaseInsensitive = false });
-            return data;
+            JObject o = JObject.Parse(result);
+            decimal course = (decimal)o.SelectToken($"Valute.{id}.Value");
+            throw new NotImplementedException();
 
         }
     }

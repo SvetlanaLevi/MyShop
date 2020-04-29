@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyShop.API.ModelsInput;
+using MyShop.API.ModelsOutput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ namespace MyShop.API.Controllers
 {
     public interface IReportController
     {
-        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithMoreThanCountProduct(int count);
+        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithCountProductMoreThan(int count);
         public ValueTask<ActionResult<OrdersInfoOutputModel>> GetOrdersInfo(OrdersInfoInputModel model);
         public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsNeverOrdered();
         public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsOnlyInDtorage();

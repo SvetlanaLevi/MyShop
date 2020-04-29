@@ -1,4 +1,4 @@
-﻿namespace MyShop.API.Controllers
+﻿namespace MyShop.API.ModelsOutput
 {
     public class CategoryWithCountOutputModel
     {
