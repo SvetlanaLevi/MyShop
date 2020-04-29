@@ -22,6 +22,7 @@ namespace MyShop.DB.Storages
             public const string OrderGetByCustomerId = "Order_SelectByCustomerId";
             public const string Order_ProductGetById = "Order_Product_SelectById";
             public const string Order_ProductGetByOrderId = "Order_Product_SelectByOrderId";
+            public const string ProductGetById = "Product_SelectById";
         }
 
         public OrderStorage(string DBConnectionString)
@@ -41,7 +42,7 @@ namespace MyShop.DB.Storages
                         RepId = order.Rep.Id,
                         order.CustomerId
                     },
-                    //transaction: _transaction,
+                    transaction: _transaction,
                     commandType: CommandType.StoredProcedure);
                 order.Id = result.FirstOrDefault();
                 outputOrder = await OrderGetById((int)order.Id);
@@ -64,6 +65,7 @@ namespace MyShop.DB.Storages
                        order.Rep = representative;
                        return order;
                    },
+                   transaction: _transaction,
                    splitOn: "Id",
                    param: new { id },
                    commandType: CommandType.StoredProcedure
@@ -89,6 +91,7 @@ namespace MyShop.DB.Storages
                         return order;
                     },
                     new { customerId },
+                    transaction: _transaction,
                     commandType: CommandType.StoredProcedure,
                     splitOn: "Id");
                 return result.ToList();
@@ -115,6 +118,7 @@ namespace MyShop.DB.Storages
                          order_Product.Value,
                          order_Product.LocalPrice
                     },
+                    transaction: _transaction,
                     commandType: CommandType.StoredProcedure);
                 var Id = result.FirstOrDefault();
                 output = await OrderProductGetById(Id);
@@ -131,16 +135,23 @@ namespace MyShop.DB.Storages
         {
             try
             {
-                var result = await _connection.QueryAsync<Order_Product, Product, Order, Valute, Order_Product>(
+                var result = await _connection.QueryAsync<Order_Product, Order, Representative, Product, Valute, Order_Product>(
                     SpName.Order_ProductGetById,
-                    (order_Product, product, order, valute) =>
+                    (order_Product,  order, rep, product, valute) =>
                     {
-                        order_Product.Product = product;
                         order_Product.Order = order;
+                        order_Product.Order.CustomerId = order.CustomerId;
+                        order_Product.Order.OrderDate = order.OrderDate;
+                        order_Product.Order.Rep = rep;
+                        order_Product.Order.Rep.Name = rep.Name;
+                        order_Product.Product = product;
+                        order_Product.Product.Model = product.Model;
+                        order_Product.Product.Brand = product.Brand;
                         order_Product.Valute = valute;
                         return order_Product;
                     },
                     new { id },
+                    transaction: _transaction,
                     commandType: CommandType.StoredProcedure,
                     splitOn: "Id"
                     );
@@ -158,7 +169,7 @@ namespace MyShop.DB.Storages
             try
             {
                 var result = await _connection.QueryAsync<Order_Product, Product, Order, Valute, Order_Product>(
-                    SpName.Order_ProductGetById,
+                    SpName.Order_ProductGetByOrderId,
                     (order_Product, product, order, valute) =>
                     {
                         order_Product.Product = product;
@@ -167,10 +178,30 @@ namespace MyShop.DB.Storages
                         return order_Product;
                     },
                     new { orderId },
+                    transaction: _transaction,
                     commandType: CommandType.StoredProcedure,
                     splitOn: "Id"
                     );
                 return result.ToList();
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async ValueTask<Product> ProductsGetById(int? Id)
+        {
+            try
+            {
+                var result = await _connection.QueryAsync<Product>(
+                    SpName.ProductGetById,
+                    new { Id },
+                    transaction: _transaction,
+                    commandType: CommandType.StoredProcedure
+                    );
+                return result.FirstOrDefault();
             }
 
             catch (Exception ex)
