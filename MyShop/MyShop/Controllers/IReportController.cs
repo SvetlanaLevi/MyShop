@@ -10,13 +10,11 @@ namespace MyShop.API.Controllers
 {
     public interface IReportController
     {
-        public ValueTask<ActionResult<CategoryWithCountOutputModel>> GetCategoriesWithCountProductMoreThan(int count);
-        public ValueTask<ActionResult<OrdersInfoOutputModel>> GetOrdersInfo(OrdersInfoInputModel model);
+        public ValueTask<ActionResult<List<CategoryWithCountOutputModel>>> GetCategoriesWithCountProductMoreThan(int count);
+        public ValueTask<ActionResult<List<OrdersInfoOutputModel>>> GetOrdersInfo(OrdersInfoInputModel model);
         public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsNeverOrdered();
-        public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsOnlyInDtorage();
+        public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsOnlyInStorage(int cityId);
         public ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsOutOfStock();
         public ValueTask<ActionResult<decimal>> GetTotalMoneyInCity(int cityId);
-        public ValueTask<ActionResult<decimal>> GetTotalMoneyInStorage(int storageId);
-
     }
 }

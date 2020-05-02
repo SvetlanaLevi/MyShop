@@ -1,4 +1,7 @@
-﻿namespace MyShop.API.ModelsInput
+﻿using MyShop.DB.Models;
+using System.Collections.Generic;
+
+namespace MyShop.API.ModelsInput
 
 {
     public class OrderInputModel

@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Options;
+using MyShop.Core;
 using MyShop.DB.Models;
 using System;
 using System.Collections.Generic;
@@ -7,12 +9,18 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace MyShop.DB.Storages
 {
     public class OrderStorage : IOrderStorage
     {
         private IDbConnection _connection;
         private IDbTransaction _transaction;
+
+        public OrderStorage(IOptions<StorageOptions> options)
+        {
+            _connection = new SqlConnection(options.Value.DBConnectionString);
+        }
 
         internal static class SpName
         {
@@ -25,69 +33,37 @@ namespace MyShop.DB.Storages
             public const string ProductGetById = "Product_SelectById";
         }
 
-        public OrderStorage(string DBConnectionString)
-        {
-            _connection = new SqlConnection(DBConnectionString);
-        }
 
-        public async ValueTask<Order> OrderInsert(Order order)
+        public async ValueTask<OrderWithItems> OrderGetById(int id)
         {
             try
             {
-                Order outputOrder;
-                var result = await _connection.QueryAsync<int>(
-                    SpName.OrderInsert,
-                    new
-                    {
-                        RepId = order.Rep.Id,
-                        order.CustomerId
-                    },
-                    transaction: _transaction,
-                    commandType: CommandType.StoredProcedure);
-                order.Id = result.FirstOrDefault();
-                outputOrder = await OrderGetById((int)order.Id);
-                return outputOrder;
-            }
-
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public async ValueTask<Order> OrderGetById(int id)
-        {
-            try
-            {
-                var result = await _connection.QueryAsync<Order, Representative, Order>(
+                var result = await _connection.QueryAsync<OrderWithItems, Valute, OrderWithItems>(
                    SpName.OrderGetById,
-                   (order, representative) =>
-                   {
-                       order.Rep = representative;
-                       return order;
-                   },
+                    (order, valute) =>
+                    {
+                        order.Valute = valute;
+                        return order;
+                    },
                    transaction: _transaction,
-                   splitOn: "Id",
                    param: new { id },
-                   commandType: CommandType.StoredProcedure
+                   commandType: CommandType.StoredProcedure,
+                   splitOn: "Id"
                    );
                 return result.FirstOrDefault();
             }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
         }
 
-        public async ValueTask<List<Order>> OrderGetByCustomerId(int customerId)
+        public async ValueTask<List<OrderWithItems>> OrderGetByCustomerId(int customerId)
         {
             try
             {
-                var result = await _connection.QueryAsync<Order, Representative, Order>(
+                var result = await _connection.QueryAsync<OrderWithItems, Valute, OrderWithItems>(
                     SpName.OrderGetByCustomerId,
-                    (order, representative) =>
+                    (order, valute) =>
                     {
-                        order.Rep = representative;
+                        order.Valute = valute;
                         return order;
                     },
                     new { customerId },
@@ -96,13 +72,30 @@ namespace MyShop.DB.Storages
                     splitOn: "Id");
                 return result.ToList();
             }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
         }
 
+        public async ValueTask<OrderWithItems> OrderInsert(OrderWithItems order)
+        {
+            try
+            {
+                OrderWithItems outputOrder;
+                var result = await _connection.QueryAsync<int>(
+                    SpName.OrderInsert,
+                    new
+                    {
+                        order.RepId,
+                        order.CustomerId,
+                        ValuteId = order.Valute.Id
+                    },
+                    transaction: _transaction,
+                    commandType: CommandType.StoredProcedure);
+                order.Id = result.FirstOrDefault();
+                outputOrder = await OrderGetById((int)order.Id);
+                return outputOrder;
+            }
+            catch (Exception ex) { throw ex; }
+        }
         public async ValueTask<Order_Product> OrderProductInsert(Order_Product order_Product)
         {
             try
@@ -112,11 +105,10 @@ namespace MyShop.DB.Storages
                     SpName.Order_ProductInsert,
                     param: new
                     {
-                         ProductId = order_Product.Product.Id,
-                         OrderId = order_Product.Order.Id,
-                         ValuteId = order_Product.Valute.Id,
-                         order_Product.Value,
-                         order_Product.LocalPrice
+                        ProductId = order_Product.Product.Id,
+                        order_Product.OrderId,
+                        order_Product.Value,
+                        order_Product.LocalPrice
                     },
                     transaction: _transaction,
                     commandType: CommandType.StoredProcedure);
@@ -124,30 +116,20 @@ namespace MyShop.DB.Storages
                 output = await OrderProductGetById(Id);
                 return output;
             }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
 
         }
-
         public async ValueTask<Order_Product> OrderProductGetById(int id)
         {
             try
             {
-                var result = await _connection.QueryAsync<Order_Product, Order, Representative, Product, Valute, Order_Product>(
+                var result = await _connection.QueryAsync<Order_Product, Product, Order_Product>(
                     SpName.Order_ProductGetById,
-                    (order_Product,  order, rep, product, valute) =>
+                    (order_Product, product) =>
                     {
-                        order_Product.Order = order;
-                        order_Product.Order.CustomerId = order.CustomerId;
-                        order_Product.Order.OrderDate = order.OrderDate;
-                        order_Product.Order.Rep = rep;
-                        order_Product.Order.Rep.Name = rep.Name;
                         order_Product.Product = product;
                         order_Product.Product.Model = product.Model;
                         order_Product.Product.Brand = product.Brand;
-                        order_Product.Valute = valute;
                         return order_Product;
                     },
                     new { id },
@@ -157,24 +139,20 @@ namespace MyShop.DB.Storages
                     );
                 return result.FirstOrDefault();
             }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
         }
 
         public async ValueTask<List<Order_Product>> OrderProductsGetByOrderId(int orderId)
         {
             try
             {
-                var result = await _connection.QueryAsync<Order_Product, Product, Order, Valute, Order_Product>(
+                var result = await _connection.QueryAsync<Order_Product, Product, Order_Product>(
                     SpName.Order_ProductGetByOrderId,
-                    (order_Product, product, order, valute) =>
+                    (order_Product, product) =>
                     {
                         order_Product.Product = product;
-                        order_Product.Order = order;
-                        order_Product.Valute = valute;
+                        order_Product.Product.Model = product.Model;
+                        order_Product.Product.Brand = product.Brand;
                         return order_Product;
                     },
                     new { orderId },
@@ -184,11 +162,7 @@ namespace MyShop.DB.Storages
                     );
                 return result.ToList();
             }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
         }
 
         public async ValueTask<Product> ProductsGetById(int? Id)
@@ -203,11 +177,7 @@ namespace MyShop.DB.Storages
                     );
                 return result.FirstOrDefault();
             }
-
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            catch (Exception ex) { throw ex; }
         }
 
         public void TransactionStart()

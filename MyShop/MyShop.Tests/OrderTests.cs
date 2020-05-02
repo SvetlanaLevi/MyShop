@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using MyShop.Core;
 using MyShop.DB.Models;
 using MyShop.DB.Storages;
 using MyShop.Repository;
@@ -7,32 +9,42 @@ using System.Threading.Tasks;
 
 namespace MyShop.Tests
 {
-    public class Tests
+    public class OrderTests
     {
-        OrderStorage OS = new OrderStorage("Data Source = (local); Initial Catalog = ShopDB; Integrated Security=True;");
-        OrderRepository OR = new OrderRepository(new OrderStorage("Data Source = (local); Initial Catalog = ShopDB; Integrated Security=True;"));
+        private IOptions<StorageOptions> _config;
+        private OrderStorage OS;
+        private OrderRepository OR;
+
+        [OneTimeSetUp]
+        public void GlobalPrepare()
+        {
+            _config = Options.Create(StorageOptionsStub.opt);
+        }
 
         [SetUp]
-        public void Setup()
+        public void PerTestPrepare()
         {
+            OS = new OrderStorage(_config);
+            OR = new OrderRepository(OS);
         }
 
         [Test]
         public async ValueTask ShouldInsertOrderTest()
         {
-            Order expectedOrder = new Order
+            OrderWithItems expectedOrder = new OrderWithItems
             {
-                Rep = new Representative { Id = 2 },
-                CustomerId = 1
+                RepId = 2,
+                CustomerId = 1,
+                Valute = new Valute { Id = "BYN" }
             };
             var actualOrder = await OS.OrderInsert(expectedOrder);
-            Assert.IsTrue(actualOrder.Equals(expectedOrder));
+            Assert.IsNotNull(actualOrder);
         }
 
         [Test]
         public async ValueTask ShouldGetOrderByIdTest()
         {
-            var actualOrder = await OS.OrderGetById(1);
+            var actualOrder = await OS.OrderGetById(4);
             Assert.IsNotNull(actualOrder);
         }
 
@@ -48,10 +60,9 @@ namespace MyShop.Tests
         {
             Order_Product expectedOrder_Prod = new Order_Product
             {
-                Product = new Product { Id = 1},
-                Order = new Order { Id = 1},
+                Product = new Product { Id = 6 },
+                OrderId = 5,
                 Value = 1,
-                Valute = new Valute { Id = "RUB" },
                 LocalPrice = 10000
             };
             var actualOrder_Prod = await OS.OrderProductInsert(expectedOrder_Prod);
@@ -60,37 +71,40 @@ namespace MyShop.Tests
         }
 
         [Test]
-        public async ValueTask ShouldGetOrder_ProductByIdTest()
+        public async ValueTask ShouldGetOrderProductByIdTest()
         {
             var actualOrder = await OS.OrderProductGetById(1);
             Assert.IsNotNull(actualOrder);
         }
 
         [Test]
-        public async ValueTask ShouldGetOrderProsuctByOrderIdTest()
+        public async ValueTask ShouldGetOrderProductByOrderIdTest()
         {
-            var actualOrders = await OS.OrderProductsGetByOrderId(1);
+            var actualOrders = await OS.OrderProductsGetByOrderId(5);
             Assert.IsNotNull(actualOrders);
         }
 
         [Test]
-        public async ValueTask ShouldCreateOrderIdTest()
+        public async ValueTask ShouldCreateOrderTest()
         {
-            var input = new List<Order_Product>()
+            var input = new OrderWithItems()
             {
-                new Order_Product()
+                CustomerId = 1,
+                RepId = 3,
+                Valute = new Valute { Id = "BYN", Value = 30.2402M, Nominal = 1 },
+                OrderItems = new List<Order_Product>
                 {
-                    Product = new Product{ Id = 3 },
-                    Order = new Order{ Rep = new Representative{ Id = 1}, CustomerId = 1 },
-                    Value = 1,
-                    Valute = new Valute{ Id = "BYN", Value = 30.2402M},
-                },
-                new Order_Product()
-                {
-                    Product = new Product{ Id = 4 },
-                    Order = new Order{ Rep = new Representative{ Id = 1}, CustomerId = 1 },
-                    Value = 1,
-                    Valute = new Valute{ Id = "BYN", Value = 30.2402M},
+                    new Order_Product()
+                    {
+                        Product = new Product{ Id = 3 },
+                        Value = 1,
+                    },
+                    new Order_Product()
+                    {
+                        Product = new Product{ Id = 4 },
+                        Value = 1,                      
+                    }
+                    
                 }
             };
 

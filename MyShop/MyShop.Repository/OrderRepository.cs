@@ -7,21 +7,22 @@ using System.Threading.Tasks;
 
 namespace MyShop.Repository
 {
-    public class OrderRepository
+    public class OrderRepository : IOrderRepository
     {
-        private readonly OrderStorage _storage;
-        public OrderRepository(OrderStorage orderStorage)
+        private readonly IOrderStorage _storage;
+        public OrderRepository(IOrderStorage storage)
         {
-            _storage = orderStorage;
+            _storage = storage;
         }
 
 
-        public async ValueTask<RequestResult<Order>> OrderGetById(int id)
+        public async ValueTask<RequestResult<OrderWithItems>> OrderGetById(int id)
         {
-            var result = new RequestResult<Order>();
+            var result = new RequestResult<OrderWithItems>();
             try
             {
                 result.RequestData = await _storage.OrderGetById(id);
+                result.RequestData.OrderItems = await _storage.OrderProductsGetByOrderId((int)result.RequestData.Id);
                 result.IsOkay = true;
             }
             catch (Exception ex)
@@ -31,12 +32,16 @@ namespace MyShop.Repository
             return result;
         }
 
-        public async ValueTask<RequestResult<List<Order>>> OrderGetByCustomerId(int id)
+        public async ValueTask<RequestResult<List<OrderWithItems>>> OrderGetByCustomerId(int id)
         {
-            var result = new RequestResult<List<Order>>();
+            var result = new RequestResult<List<OrderWithItems>>();
             try
             {
                 result.RequestData = await _storage.OrderGetByCustomerId(id);
+                foreach (var order in result.RequestData)
+                {
+                    order.OrderItems = await _storage.OrderProductsGetByOrderId((int)order.Id);
+                }
                 result.IsOkay = true;
             }
             catch (Exception ex)
@@ -46,18 +51,22 @@ namespace MyShop.Repository
             return result;
         }
 
-        public async ValueTask<RequestResult<List<Order_Product>>> CreateOrder(List<Order_Product> order_ProductModels)
+        public async ValueTask<RequestResult<OrderWithItems>> CreateOrder(OrderWithItems order)
         {
-            var result = new RequestResult<List<Order_Product>>() { RequestData = new List<Order_Product>()};
+            var result = new RequestResult<OrderWithItems>();
+
             try
             {
                 _storage.TransactionStart();
-                var order = await _storage.OrderInsert(order_ProductModels[0].Order);
-                foreach (var item in order_ProductModels)
+                result.RequestData = (await _storage.OrderInsert(order));
+                result.RequestData.OrderItems = new List<Order_Product>();
+
+                foreach (var item in order.OrderItems)
                 {
-                    item.Order = order;
-                    item.LocalPrice = (await _storage.ProductsGetById(item.Product.Id)).Price * item.Value / item.Valute.Value;
-                    result.RequestData.Add(await _storage.OrderProductInsert(item));
+                    item.OrderId = result.RequestData.Id;
+                    var productPrice = (await _storage.ProductsGetById(item.Product.Id)).Price;
+                    item.LocalPrice = productPrice * item.Value * order.Valute.Nominal / order.Valute.Value;
+                    result.RequestData.OrderItems.Add(await _storage.OrderProductInsert(item));
                 }
                 _storage.TransactionCommit();
                 result.IsOkay = true;
@@ -69,6 +78,5 @@ namespace MyShop.Repository
             }
             return result;
         }
-
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Options;
+using MyShop.Core;
 using MyShop.DB.Models;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,10 @@ namespace MyShop.DB.Storages
     public class ReportStorage : IReportStorage
     {
         private IDbConnection _connection;
+        public ReportStorage(IOptions<StorageOptions> options)
+        {
+            _connection = new SqlConnection(options.Value.DBConnectionString);
+        }
 
         internal static class SpName
         {
@@ -25,10 +31,6 @@ namespace MyShop.DB.Storages
             public const string GetOrdersInfo = "OrdersInfo";
         }
 
-        public ReportStorage(string DBConnectionString)
-        {
-            _connection = new SqlConnection(DBConnectionString);
-        }
 
         public async ValueTask<List<CategoryWithCount>> GetCategoryProductCount(int count)
         {
@@ -47,7 +49,6 @@ namespace MyShop.DB.Storages
                    );
                 return result.ToList();
             }
-
             catch (Exception ex)
             {
                 throw ex;
@@ -153,14 +154,14 @@ namespace MyShop.DB.Storages
             }
         }
 
-        public async ValueTask<List<OrdersInfo>> GetOrdersInfo(DateTime startDate, DateTime endDate)
+        public async ValueTask<List<OrdersInfo>> GetOrdersInfo(OrdersInfo model)
         {
             try
             {
                 var result = await _connection.QueryAsync<OrdersInfo>(
                    SpName.GetOrdersInfo,
                    commandType: CommandType.StoredProcedure,
-                   param: new { startDate, endDate }
+                   param: new { model.StartDate, model.EndDate }
                    );
                 return result.ToList();
             }

@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace MyShop.Repository
 {
-    class ReportRepository
+    public class ReportRepository : IReportRepository
     {
-        private readonly ReportStorage _storage;
-        public ReportRepository(ReportStorage RS)
+        private readonly IReportStorage _storage;
+        public ReportRepository(IReportStorage storage)
         {
-            _storage = RS;
+            _storage = storage;
         }
         public async ValueTask<RequestResult<List<CategoryWithCount>>> GetCategoryProductCount(int count)
         {
@@ -118,12 +118,12 @@ namespace MyShop.Repository
             return result;
         }
 
-        public async ValueTask<RequestResult<List<OrdersInfo>>> GetOrdersInfo(DateTime startDate, DateTime endDate)
+        public async ValueTask<RequestResult<List<OrdersInfo>>> GetOrdersInfo(OrdersInfo model)
         {
             var result = new RequestResult<List<OrdersInfo>>();
             try
             {
-                result.RequestData = await _storage.GetOrdersInfo(startDate, endDate);
+                result.RequestData = await _storage.GetOrdersInfo(model);
                 result.IsOkay = true;
             }
             catch (Exception ex)

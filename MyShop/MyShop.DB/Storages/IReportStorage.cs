@@ -22,7 +22,7 @@ namespace MyShop.DB.Storages
 
         public ValueTask<decimal> GetTotalMoneyInCity(int cityId);
 
-        public ValueTask<List<OrdersInfo>> GetOrdersInfo(DateTime startDate, DateTime endDate);
+        public ValueTask<List<OrdersInfo>> GetOrdersInfo(OrdersInfo model);
 
     }
 }
