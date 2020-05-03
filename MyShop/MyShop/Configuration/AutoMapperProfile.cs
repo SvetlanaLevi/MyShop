@@ -17,10 +17,6 @@ namespace MyShop.API
             CreateMap<CategoryWithCount, CategoryWithCountOutputModel>();
             CreateMap<OrdersInfo, OrdersInfoOutputModel>();
             CreateMap<Product, ProductOutputModel>();
-            CreateMap<Order, OrderOutputModel>()
-               .ForMember(dest => dest.RepName, opt => opt.MapFrom(src => src.Rep.Name))
-               .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate.ToString(@"dd.MM.yyyy")))
-               .ForMember(dest => dest.OrderTime, opt => opt.MapFrom(src => src.OrderDate.ToString(@"T")));
 
             CreateMap<OrdersInfoInputModel, OrdersInfo>()
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate == null ? null : (DateTime?)Convert.ToDateTime(src.StartDate)))

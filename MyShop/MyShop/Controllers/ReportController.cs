@@ -60,6 +60,7 @@ namespace MyShop.API.Controllers
         [HttpGet("Money/AmountInCity/{cityId}")]
         public async ValueTask<ActionResult<decimal>> GetTotalMoneyInCity(int cityId)
         {
+            if (cityId <= 0) return BadRequest("City id can't be less whan 1");
             var result = await _repository.GetTotalMoneyInCity(cityId);
             if (result.IsOkay)
             {
@@ -83,9 +84,10 @@ namespace MyShop.API.Controllers
 
 
         //товары есть на Складе, но при этом отсутствуют в городе.
-        [HttpGet("Product/OnlyInStorage")]
+        [HttpGet("Product/OnlyInStorage/{cityId}")]
         public async ValueTask<ActionResult<List<ProductOutputModel>>> GetProductsOnlyInStorage(int cityId)
         {
+            if (cityId<=0||cityId==null) return BadRequest("City id can't be less whan 1"); 
             var result = await _repository.GetProductsOnlyInStorage(cityId);
             if (result.IsOkay)
             {

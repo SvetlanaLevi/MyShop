@@ -16,9 +16,9 @@ namespace MyShop.Repository
         }
 
 
-        public async ValueTask<RequestResult<OrderWithItems>> OrderGetById(int id)
+        public async ValueTask<RequestResult<Order>> OrderGetById(int id)
         {
-            var result = new RequestResult<OrderWithItems>();
+            var result = new RequestResult<Order>();
             try
             {
                 result.RequestData = await _storage.OrderGetById(id);
@@ -32,9 +32,9 @@ namespace MyShop.Repository
             return result;
         }
 
-        public async ValueTask<RequestResult<List<OrderWithItems>>> OrderGetByCustomerId(int id)
+        public async ValueTask<RequestResult<List<Order>>> OrderGetByCustomerId(int id)
         {
-            var result = new RequestResult<List<OrderWithItems>>();
+            var result = new RequestResult<List<Order>>();
             try
             {
                 result.RequestData = await _storage.OrderGetByCustomerId(id);
@@ -51,9 +51,9 @@ namespace MyShop.Repository
             return result;
         }
 
-        public async ValueTask<RequestResult<OrderWithItems>> CreateOrder(OrderWithItems order)
+        public async ValueTask<RequestResult<Order>> CreateOrder(Order order)
         {
-            var result = new RequestResult<OrderWithItems>();
+            var result = new RequestResult<Order>();
 
             try
             {

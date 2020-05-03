@@ -31,7 +31,7 @@ namespace MyShop.Tests
         [Test]
         public async ValueTask ShouldInsertOrderTest()
         {
-            OrderWithItems expectedOrder = new OrderWithItems
+            Order expectedOrder = new Order
             {
                 RepId = 2,
                 CustomerId = 1,
@@ -61,7 +61,7 @@ namespace MyShop.Tests
             Order_Product expectedOrder_Prod = new Order_Product
             {
                 Product = new Product { Id = 6 },
-                OrderId = 5,
+                OrderId = 1000,
                 Value = 1,
                 LocalPrice = 10000
             };
@@ -87,7 +87,7 @@ namespace MyShop.Tests
         [Test]
         public async ValueTask ShouldCreateOrderTest()
         {
-            var input = new OrderWithItems()
+            var input = new Order()
             {
                 CustomerId = 1,
                 RepId = 3,

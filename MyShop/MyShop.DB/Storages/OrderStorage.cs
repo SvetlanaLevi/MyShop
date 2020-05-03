@@ -34,11 +34,11 @@ namespace MyShop.DB.Storages
         }
 
 
-        public async ValueTask<OrderWithItems> OrderGetById(int id)
+        public async ValueTask<Order> OrderGetById(int id)
         {
             try
             {
-                var result = await _connection.QueryAsync<OrderWithItems, Valute, OrderWithItems>(
+                var result = await _connection.QueryAsync<Order, Valute, Order>(
                    SpName.OrderGetById,
                     (order, valute) =>
                     {
@@ -55,11 +55,11 @@ namespace MyShop.DB.Storages
             catch (Exception ex) { throw ex; }
         }
 
-        public async ValueTask<List<OrderWithItems>> OrderGetByCustomerId(int customerId)
+        public async ValueTask<List<Order>> OrderGetByCustomerId(int customerId)
         {
             try
             {
-                var result = await _connection.QueryAsync<OrderWithItems, Valute, OrderWithItems>(
+                var result = await _connection.QueryAsync<Order, Valute, Order>(
                     SpName.OrderGetByCustomerId,
                     (order, valute) =>
                     {
@@ -75,11 +75,11 @@ namespace MyShop.DB.Storages
             catch (Exception ex) { throw ex; }
         }
 
-        public async ValueTask<OrderWithItems> OrderInsert(OrderWithItems order)
+        public async ValueTask<Order> OrderInsert(Order order)
         {
             try
             {
-                OrderWithItems outputOrder;
+                Order outputOrder;
                 var result = await _connection.QueryAsync<int>(
                     SpName.OrderInsert,
                     new

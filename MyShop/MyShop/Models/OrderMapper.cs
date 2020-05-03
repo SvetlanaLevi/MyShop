@@ -8,9 +8,9 @@ namespace MyShop.API.Models
     public static class OrderMapper
     {
         //это маппер-костыль, переделать не автомаппер не успела:(
-        public static OrderWithItems ToDataModel(OrderInputModel model)
+        public static Order ToDataModel(OrderInputModel model)
         {
-            var dataModel = new OrderWithItems()
+            var dataModel = new Order()
             {
                 OrderItems = new List<Order_Product>()
             };
@@ -29,9 +29,9 @@ namespace MyShop.API.Models
             dataModel.CustomerId = model.CustomerId;
             return dataModel;
         }
-        public static OrderWithItemsOutputModel ToOutputModel(OrderWithItems model)
+        public static OrderOutputModel ToOutputModel(Order model)
         {
-            var outputModel = new OrderWithItemsOutputModel()
+            var outputModel = new OrderOutputModel()
             {
                 orderItemOutput = new List<OrderItemOutputModel>()
             };
@@ -48,7 +48,7 @@ namespace MyShop.API.Models
                 outputModel.orderItemOutput.Add(orderItemOutput);
                 outputModel.LocalAmount += item.LocalPrice;
             }
-
+            outputModel.Id = (int)model.Id;
             outputModel.RepName = model.RepName;
             outputModel.OrderDate = model.OrderDate.ToString(@"dd.MM.yyyy");
             outputModel.OrderTime = model.OrderDate.ToString(@"T");
@@ -56,33 +56,12 @@ namespace MyShop.API.Models
             return outputModel;
         }
 
-        public static List<OrderWithItemsOutputModel> ToOutputModels(List<OrderWithItems> models)
+        public static List<OrderOutputModel> ToOutputModels(List<Order> models)
         {
-            var outputModels = new List<OrderWithItemsOutputModel>();
-            foreach (OrderWithItems model in models)
+            var outputModels = new List<OrderOutputModel>();
+            foreach (Order model in models)
             {
-                var outputModel = new OrderWithItemsOutputModel()
-                {
-                    orderItemOutput = new List<OrderItemOutputModel>()
-                };
-
-                foreach (Order_Product item in model.OrderItems)
-                {
-                    var orderItemOutput = new OrderItemOutputModel()
-                    {
-                        Brand = item.Product.Brand,
-                        Model = item.Product.Model,
-                        LocalPrice = item.LocalPrice,
-                        Value = item.Value
-                    };
-                    outputModel.orderItemOutput.Add(orderItemOutput);
-                    outputModel.LocalAmount += item.LocalPrice;
-                }
-
-                outputModel.RepName = model.RepName;
-                outputModel.OrderDate = model.OrderDate.ToString(@"dd.MM.yyyy");
-                outputModel.OrderTime = model.OrderDate.ToString(@"T");
-                outputModel.ValuteId = model.Valute.Id;
+                var outputModel = ToOutputModel(model);
                 outputModels.Add(outputModel);
             }
             return outputModels;

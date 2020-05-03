@@ -30,8 +30,10 @@ namespace MyShop.API.Controllers
         }
 
         [HttpPost]
-        public async ValueTask<ActionResult<OrderWithItemsOutputModel>> CreateOrder(OrderInputModel model)
+        public async ValueTask<ActionResult<OrderOutputModel>> CreateOrder(OrderInputModel model)
         {
+            if (model.ValuteId!="RUB" & model.ValuteId!="UAH" & model.ValuteId != "BYN")
+                return BadRequest ("This valute is not supported by our servise");
             var order = OrderMapper.ToDataModel(model);
             order.Valute = ValuteRequest.GetValute(model.ValuteId);
             var result = await _repository.CreateOrder(order);
@@ -44,12 +46,13 @@ namespace MyShop.API.Controllers
 
 
         [HttpGet("{orderId}")]
-        public async ValueTask<ActionResult<OrderWithItemsOutputModel>> GetOrderById(int orderId)
+        public async ValueTask<ActionResult<OrderOutputModel>> GetOrderById(int orderId)
         {
             if (orderId <= 0) return BadRequest("Order id should be more than 0");
             var result = await _repository.OrderGetById(orderId);
             if (result.IsOkay)
             {
+                if (result.RequestData == null) return NotFound($"Order not found");
                 return Ok(OrderMapper.ToOutputModel(result.RequestData));
             }
             return Problem($"Request failed {result.ExMessage}", statusCode: 520);
@@ -62,6 +65,7 @@ namespace MyShop.API.Controllers
             var result = await _repository.OrderGetByCustomerId(customerId);
             if (result.IsOkay)
             {
+                if (result.RequestData == null) return NotFound($"Orders not found");
                 return Ok(OrderMapper.ToOutputModels(result.RequestData));
             }
             return Problem($"Request failed {result.ExMessage}", statusCode: 520);

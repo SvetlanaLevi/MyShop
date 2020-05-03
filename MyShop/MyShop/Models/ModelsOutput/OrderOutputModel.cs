@@ -1,16 +1,27 @@
-﻿using System;
+﻿using MyShop.API.ModelsOutput;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MyShop.API.ModelsOutput
 {
     public class OrderOutputModel
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string RepName { get; set; }
         public string OrderDate { get; set; }
         public string OrderTime { get; set; }
-        public int CustomerId { get; set; }
+        public decimal LocalAmount { get; set; }
+        public string ValuteId { get; set; }
+        public List<OrderItemOutputModel> orderItemOutput { get; set; }
+
+    }
+
+    public class OrderItemOutputModel
+    {
+        public string Model { get; set; }
+        public string Brand { get; set; }
+        public decimal LocalPrice { get; set; }
+        public int Value { get; set; }
+
     }
 }

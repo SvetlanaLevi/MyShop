@@ -8,9 +8,9 @@ namespace MyShop.Repository
 {
     public interface IOrderRepository
     {
-        ValueTask<RequestResult<OrderWithItems>> OrderGetById(int id);
-        ValueTask<RequestResult<List<OrderWithItems>>> OrderGetByCustomerId(int id);
-        ValueTask<RequestResult<OrderWithItems>> CreateOrder(OrderWithItems order);
+        ValueTask<RequestResult<Order>> OrderGetById(int id);
+        ValueTask<RequestResult<List<Order>>> OrderGetByCustomerId(int id);
+        ValueTask<RequestResult<Order>> CreateOrder(Order order);
 
     }
 }
