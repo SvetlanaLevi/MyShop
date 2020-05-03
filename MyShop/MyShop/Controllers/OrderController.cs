@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using MyShop.API.Models;
 using MyShop.API.ModelsInput;
 using MyShop.API.ModelsOutput;
-using MyShop.DB.Models;
 using MyShop.Repository;
-using Newtonsoft.Json.Linq;
 
 namespace MyShop.API.Controllers
 {

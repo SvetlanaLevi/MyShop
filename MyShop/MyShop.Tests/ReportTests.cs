@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using MyShop.Core;
-using MyShop.DB.Models;
 using MyShop.DB.Storages;
 using MyShop.Repository;
 using NUnit.Framework;
-using System;
 using System.Threading.Tasks;
 
 namespace MyShop.Tests

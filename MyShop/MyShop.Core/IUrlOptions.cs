@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MyShop.Core
+﻿namespace MyShop.Core
 {
     public interface IUrlOptions
     {

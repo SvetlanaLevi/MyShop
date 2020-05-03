@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MyShop.DB.Models
+﻿namespace MyShop.DB.Models
 {
     public class CategoryWithCount
     {
