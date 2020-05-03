@@ -52,12 +52,26 @@ namespace MyShop.API.Controllers
             return Problem($"Request failed {result.ExMessage}", statusCode: 520);
         }
 
-
-        [HttpGet("Money/AmountInCity/{cityId}")]
+        //Сумма стоимости товаров в городе
+        [HttpGet("ProductPriceAmount/{cityId}")]
         public async ValueTask<ActionResult<decimal>> GetTotalMoneyInCity(int cityId)
         {
             if (cityId <= 0) return BadRequest("City id can't be less whan 1");
             var result = await _repository.GetTotalMoneyInCity(cityId);
+            if (result.IsOkay)
+            {
+                return Ok($"Amount: {result.RequestData}");
+            }
+            return Problem($"Request failed {result.ExMessage}", statusCode: 520);
+        }
+
+
+        //Сумма заказов в стране
+        [HttpGet("SalesInCountry/{countryId}")]
+        public async ValueTask<ActionResult<decimal>> GetSalesAmountInCounry(int countryId)
+        {
+            if (countryId <= 0) return BadRequest("City id can't be less whan 1");
+            var result = await _repository.GetSalesCount(countryId);
             if (result.IsOkay)
             {
                 return Ok($"Amount: {result.RequestData}");
